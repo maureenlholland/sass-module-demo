@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sass Module Demo</title>
+    <style>
+        body {
+            line-height: 1.5;
+            font-size: 18px;
+            background-color: deepskyblue;
+            padding: 20px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+        code {
+            color: deeppink;
+            font-family:'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+        small {
+            font-style: italic;
+            background-color: black;
+            color: white;
+            padding: 2px 10px;
+            margin-left: 10px;
+            position: relative;
+        }
+        small::before {
+            --arrow-size: 15px;
+            content: "";
+            width: var(--arrow-size);
+            background-color: black;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: calc(-1 * var(--arrow-size));
+            clip-path: polygon(100% 0, 0 50%, 100% 100%);
+        }
+        pre {
+            background: whitesmoke;
+            padding: 10px;
+        }
+        li + li {
+            margin-top: 10px;
+        }
+        .content {
+            background-color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            margin: 0 auto;
+            max-width: 80ch;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+    <h1>Sass Module Demo</h1>
+    <h2>Why can't I just use <code>@import</code>?</h2>
+    <p>You can. Sass is hoping to deprecate the syntax, but it won't happen any time soon.</p>
+    <p>Worth noting <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@import">CSS imports are now available</a> and that could cause confusion.</p>
+    <p>Sass maintainers also found they ran into common problems over the years:
+        <ul>
+            <li><strong>global scope conflicts</strong>:
+                <ul>
+                    <li>variables, functions, or mixins were available in any subsequently loaded stylesheet once imported, which made it difficult to find original definitions.</li>
+                    <li>members could also be unintentionally overwritten if they weren't carefully namespaced</li>
+                </ul>
+            </li>
+            <li><strong>duplicate CSS</strong>: stylesheets were re-loaded from scratch every time they were imported</li>
+            <li><strong>no privacy</strong>: internal helper functions were also available in the global scope, despite not being meant for use outside their originating stylesheet</li>
+        </ul>
+    </p>
+    <h2>What's the difference between <code>@import</code> and <code>@use</code>?</h2>
+    <p><code>@use</code> basically solves all the issues listed above. It scopes styles to the stylesheet loading them. It only loads the stylesheet once and subsequent <code>@use</code>s of that stylesheet reference the originally loaded stylesheet. It allows private members that are not accessible beyond the stylesheet that defines them.</p>
+    <p><code>@use</code> also creates a big headache for larger codebases where the global availability of members was important.</p>
+    <h3>Typical <code>@import</code> problem</h3>
+    <pre>
+// new-styles.scss
+@import 'home'; <small>this stylesheet wants to access token variables that haven't loaded yet</small>
+@import 'tokens';
+
+<strong>to fix: re-order loading</strong>
+
+// new-styles.scss
+@import 'tokens';
+@import 'home'; <small>this stylesheet has access to all token variables</small>
+</pre>
+<h3>Typical <code>@use</code> problem</h3>
+<pre>
+// new-styles.scss error
+@use 'tokens';
+@use 'home'; <small>this stylesheet does not have access to token variables</small>
+
+<strong>to fix: load tokens everywhere they are used</strong>
+
+// home.scss
+@use 'tokens'; <small>this stylesheet explicitly loads tokens stylesheet</small>
+
+// new-styles.scss
+@use 'home'; <small>loading order doesn't matter anymore</small>
+@use 'tokens';
+</pre>
+    <h2>WTF is <code>@forward</code>?</h2>
+    <p>Forwarding a stylesheet is not something most users would need. This is meant for library authors.</p> <p>Unlike <code>@use</code>, the members from <code>@forward</code> are not available in the stylesheet where they are loaded. They are loaded as if they were defined in the loading stylesheet and are only available with later <code>@use</code>s of that stylesheet.</p>
+    <p>This allows library authors to break their stylesheets into whatever organization they want, and <code>@forward</code> a separate, cumulative stylesheet for end users.</p>
+    <h3><code>@use</code> in library</h3>
+    <pre>
+// lib.scss
+@use 'home';
+@use 'tokens';
+
+$color: tokens.$variable; <small>namespaced members from <code>@use</code> stylesheets are available</small>
+
+
+// end-user.scss
+@use 'lib';
+
+h1 {
+    color: lib.$color; <small>members defined in lib are available</small>
+    color: lib.$variable; <small>ERROR: members loaded with <code>@use</code> in lib are not available</small>
+    color: lib.tokens.$variable; <small>ERROR: sorry, not gonna work</small>
+}
+</pre>
+
+<h3><code>@forward</code> in library</h3>
+<pre>
+// lib.scss
+@forward 'home';
+@forward 'tokens';
+
+$color: tokens.$variable; <small>ERROR: members loaded with <code>@forward</code> are not available</small>
+
+@use 'tokens'
+$color: tokens.$variable; <small>you can <code>@use</code> and <code>@forward</code> in same stylesheet</small>
+
+// end-user.scss
+@use 'lib';
+
+h1 {
+    color: lib.$color; <small>members defined in lib are available</small>
+    color: lib.$variable; <small>members loaded with <code>@forward</code> in lib are also available</small>
+}
+    </pre>
+
+    <h2>Common Errors</h2>
+    <h3>SassError: Two forwarded modules both define a variable named $brand-theme.</h3>
+    <h3>SassError: Module loop: this module is already being loaded.</h3>
+    <h3>SassError: This module was already loaded, so it can't be configured using "with".</h3>
+
+    <h2>Takeaway</h2>
+    <h3><code>@use</code> it where you use it</h3>
+    <p>If you need access to members defined outside your stylesheet,<br> load them into your stylesheet with <code>@use</code>.</p>
+    <h3>Fake it <code>@forward</code></h3>
+    <p>If you want to combine members from multiple stylesheets into one stylesheet for convenience,<br> pretend you defined them all in that stylesheet by loading with <code>@forward</code>.</p>
+    </div>
+</body>
+</html>
