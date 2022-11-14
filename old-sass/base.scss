@@ -1,0 +1,11 @@
+$color: red;
+$accent: aqua;
+
+h1 {
+    background-color: $color;
+}
+
+button {
+    // $accent is defined in file, overriding user
+    @include button;
+}

@@ -1,9 +1,6 @@
-@import './variables.scss';
-@import './override.scss';
+@import './base.scss';
 
-body {
-    background-color: $color;
-    .accent {
-        background-color: $accent;
-    }
+.accent {
+    color: $color;
+    background-color: $accent;
 }

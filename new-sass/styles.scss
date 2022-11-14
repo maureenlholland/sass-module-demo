@@ -1,5 +1,7 @@
-@use './loop.scss';
-@use './variables.scss';
-@use './base.scss';
-@use './home.scss';
-@use './override.scss';
+@forward './variables.scss' with ($accent: aqua !default);
+// order DOES matter with initial module load
+// variables has to be first so it can be loaded with user config
+// if loop loads first, it loads variables with default config
+@forward './loop.scss';
+@forward './base.scss';
+@forward './home.scss';

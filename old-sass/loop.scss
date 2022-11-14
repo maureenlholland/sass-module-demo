@@ -1,3 +1,5 @@
+// @import './base.scss'; // note: you can still get loop errors with imports
+
 @mixin button {
     // accent is undefined until mixin is used
     background-color: $accent;

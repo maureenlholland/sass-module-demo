@@ -1,4 +1,3 @@
-@import './loop.scss'; // has to be above variables to avoid undefined mixin error
-@import './variables.scss';
+@import './loop.scss'; // has to be above base to avoid undefined mixin error
+@import './base.scss';
 @import './home.scss';
-@import './override.scss';
