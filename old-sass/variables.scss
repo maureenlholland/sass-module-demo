@@ -4,3 +4,10 @@ $accent: aqua;
 h1 {
     background-color: white;
 }
+
+button {
+    // by now, $accent has been defined
+    @include button;
+}
+
+// if I defined it here, mixin would error with undefined $accent variable

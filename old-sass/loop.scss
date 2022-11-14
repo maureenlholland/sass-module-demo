@@ -1,0 +1,4 @@
+@mixin button {
+    // accent is undefined until mixin is used
+    background-color: $accent;
+}

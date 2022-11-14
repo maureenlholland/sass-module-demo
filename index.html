@@ -67,7 +67,7 @@
                     <li>members could also be unintentionally overwritten if they weren't carefully namespaced</li>
                 </ul>
             </li>
-            <li><strong>duplicate CSS</strong>: stylesheets were re-loaded from scratch every time they were imported</li>
+            <li><strong>duplicate CSS</strong>: *if* you chose to be explicit about importing members where they were used, stylesheets were re-loaded from scratch every time they were imported</li>
             <li><strong>no privacy</strong>: internal helper functions were also available in the global scope, despite not being meant for use outside their originating stylesheet</li>
         </ul>
     </p>

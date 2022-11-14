@@ -1,0 +1,9 @@
+@use './override.scss';
+@use './variables.scss';
+
+body {
+    background-color: variables.$color;
+    .accent {
+        background-color: override.$accent;
+    }
+}

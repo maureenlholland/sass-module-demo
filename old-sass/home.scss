@@ -1,3 +1,6 @@
+@import './variables.scss';
+@import './override.scss';
+
 body {
     background-color: $color;
     .accent {

@@ -1,0 +1,5 @@
+@use './variables.scss';
+
+@mixin button {
+    background-color: variables.$accent;
+}
